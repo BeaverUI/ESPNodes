@@ -1,30 +1,39 @@
-/* IoESP framework node code
+/* ESPNodes - node code
  * 
- * Use this node code with the IoESP PHP server code
+ * Use this node code with the ESPNodes server code
  * GitHub: https://github.com/BeaverUI/ESPNodes
  * 
- * Author:  Beaver-UI
- * Date:    2020-12-19
- * Version: 1
- *  
+ * Author:  Bas Vermulst
+ * Date:    2021-07-10
+ * Version: 0.2
+ * 
  * This code is built using the following libraries: 
  * - ESP library by esp8266, found on http://arduino.esp8266.com/stable/package_esp8266com_index.json
  * - ArduinoJson library by Benoit Blanchon
- * - Servo library
- * - EEPROM library
+ * - Servo library by Arduino
  * - HX711 library by Rob Tillaart
+ * - ArduinoOTA by Juraj Andrassy
  * 
+ * This example is built for the WeMos D1 R2 & mini, but should work for other ESPs as well.
  * 
- * This example is built for the WeMos D1 mini, but should work for other ESPs as well.
  */
-
+ 
 #include <EEPROM.h>
 #include <ESP8266WiFi.h>
+#include <ESP8266mDNS.h>
 #include <ESP8266WebServer.h>
+#include <ArduinoOTA.h>
 //#include <WiFiClient.h> // for HTTP push messages
-#include <ArduinoJson.h>
 #include <Servo.h>
 #include <HX711.h>
+
+#define ARDUINOJSON_POSITIVE_EXPONENTIATION_THRESHOLD 1e6
+#define ARDUINOJSON_NEGATIVE_EXPONENTIATION_THRESHOLD 1e-3
+#include <ArduinoJson.h>
+
+// set servo pulse width range
+#define SERVO_MIN 544
+#define SERVO_MAX 2400
 
 // Init EEPROM addresses
 // load cell scale & tare
@@ -38,14 +47,15 @@ struct EEPROMdata {
 
 // Init WiFi
 int status = WL_IDLE_STATUS;
-#define WIFI_SSID "MY_SSID"
-#define WIFI_PASSWORD "MY_WIFI_CODE"
+#define WIFI_SSID "YOUR_SSID"
+#define WIFI_PASSWORD "YOUR_WIFI_PASSWORD"
+#define CLIENT_NAME "Tuinhuis"
 
 // Init servo
 Servo servo;
 int servo_attached=0;
 #define SERVO_PIN D4
-#define SERVO_STEPSIZE 1
+#define SERVO_STEPSIZE 2
 
 // Init HX711 load cell
 HX711 loadcell;
@@ -64,13 +74,14 @@ DynamicJsonDocument JSONdata(500);
 // Status variables
 int servo_ref_angle=0;
 int servo_angle=0;
+int servo_attached_timer=0;
 float loadcell_value_a=0;
 float loadcell_value_b=0;
 
 
 
 void setup() {
-  delay(1000); // wait until serial port is alive after reset
+  delay(1000);
   Serial.begin(115200);
   
   // Get stored data from EEPROM
@@ -91,6 +102,49 @@ void setup() {
   Serial.println("Connected");
   Serial.println("IP address: " + IPAddressString(WiFi.localIP()));
 
+
+  // Init OTA updates
+  ArduinoOTA.setPort(8266);    // Port defaults to 8266
+  ArduinoOTA.setHostname(CLIENT_NAME);  // Hostname defaults to esp8266-[ChipID]
+  // ArduinoOTA.setPassword("admin");
+  // Password can be set with it's md5 value as well
+  // MD5(admin) = 21232f297a57a5a743894a0e4a801fc3
+  // ArduinoOTA.setPasswordHash("21232f297a57a5a743894a0e4a801fc3");
+  
+  ArduinoOTA.onStart([]() {
+    String type;
+    if (ArduinoOTA.getCommand() == U_FLASH) {
+      type = "sketch";
+    } else { // U_FS
+      type = "filesystem";
+    }
+
+    // NOTE: if updating FS this would be the place to unmount FS using FS.end()
+    Serial.println("Start updating " + type);
+  });
+  ArduinoOTA.onEnd([]() {
+    Serial.println("\nEnd");
+  });
+  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+    Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+  });
+  ArduinoOTA.onError([](ota_error_t error) {
+    Serial.printf("Error[%u]: ", error);
+    if (error == OTA_AUTH_ERROR) {
+      Serial.println("Auth Failed");
+    } else if (error == OTA_BEGIN_ERROR) {
+      Serial.println("Begin Failed");
+    } else if (error == OTA_CONNECT_ERROR) {
+      Serial.println("Connect Failed");
+    } else if (error == OTA_RECEIVE_ERROR) {
+      Serial.println("Receive Failed");
+    } else if (error == OTA_END_ERROR) {
+      Serial.println("End Failed");
+    }
+  });
+  ArduinoOTA.begin();
+
+  
   // Start load cell
   loadcell.begin(LOADCELL_PIN_D, LOADCELL_PIN_SCK);
 
@@ -102,16 +156,23 @@ void setup() {
 
 
 void loop() {
-  static int prev_millis=0;
+  static int prev_millis_A=0,prev_millis_B=0;
   
   // handle webclient
   webserver.handleClient();
-
-  // 5 Hz loop
-  if((millis() - prev_millis >= 200) || (millis() < prev_millis)){
-    prev_millis=millis();
-    
+  ArduinoOTA.handle();
+  
+  // 20 Hz loop for faster stuff
+  if((millis() - prev_millis_A >= 100) || (millis() < prev_millis_A)){
+    prev_millis_A=millis();
+ 
     handleServo();
+  }
+
+  // 2 Hz loop for slow stuff
+  if((millis() - prev_millis_B >= 500) || (millis() < prev_millis_B)){
+    prev_millis_B=millis();
+    
     handleLoadcells();
   }
 }
@@ -133,7 +194,7 @@ void handleWebRoot() {
     if(JSONdata.containsKey("servo_attached")){
       servo_attached=JSONdata["servo_attached"].as<int>();
       if(servo_attached==1){
-        servo.attach(SERVO_PIN);
+        servo.attach(SERVO_PIN, SERVO_MIN, SERVO_MAX, servo_angle);
       }else{
         servo.detach();        
       }
@@ -185,6 +246,7 @@ void handleWebRoot() {
   JSONdata["servo_attached"] = servo_attached;
   JSONdata["servo_angle"] = servo_angle;
   JSONdata["servo_ref_angle"] = servo_ref_angle;
+  JSONdata["loadcell_value"] = loadcell_value_a+loadcell_value_b;
   JSONdata["loadcell_value_a"] = loadcell_value_a;
   JSONdata["loadcell_value_b"] = loadcell_value_b;
   JSONdata["loadcell_tare_a"] = eeprom_data.loadcell_tare_a;
@@ -227,20 +289,25 @@ void handleLoadcells(){
 
 void handleServo(){
   if(servo_angle > servo_ref_angle){
-    
+    if(!servo_attached){
+      servo_attached=1;
+      servo.attach(SERVO_PIN, SERVO_MIN, SERVO_MAX, servo_angle);
+    }
+      
     if(abs(servo_angle-servo_ref_angle) < SERVO_STEPSIZE){
       servo_angle=servo_ref_angle;
     }else{
       servo_angle=servo_angle-SERVO_STEPSIZE;
     }
       
-    if(!servo_attached){
-      servo_attached=1;
-      servo.attach(SERVO_PIN);
-    }
     servo.write(servo_angle);
+    servo_attached_timer=0;
 
   }else if(servo_angle < servo_ref_angle){
+    if(!servo_attached){
+      servo_attached=1;
+      servo.attach(SERVO_PIN, SERVO_MIN, SERVO_MAX, servo_angle);
+    }
 
     if(abs(servo_angle-servo_ref_angle) < SERVO_STEPSIZE){
       servo_angle=servo_ref_angle;
@@ -248,12 +315,19 @@ void handleServo(){
       servo_angle=servo_angle+SERVO_STEPSIZE;
     }
 
-    if(!servo_attached){
-      servo_attached=1;
-      servo.attach(SERVO_PIN);
-    }
     servo.write(servo_angle);
-  }  
+    servo_attached_timer=0;
+
+  }else{  
+    if(servo_attached==1){
+      servo_attached_timer++;
+      if(servo_attached_timer>10*10){
+        servo.detach();
+        servo_attached=0;
+        servo_attached_timer=0;
+      }
+    }
+  }
 }
 
 
@@ -261,5 +335,5 @@ void handleServo(){
 
 // ===== Helper functions =====
 String IPAddressString(IPAddress address){
- return String(address[0]) + "." + String(address[1]) + "." + String(address[2]) + "." + String(address[3]);
+  return String(address[0]) + "." + String(address[1]) + "." + String(address[2]) + "." + String(address[3]);
 }

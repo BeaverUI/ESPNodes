@@ -17,11 +17,13 @@ The main advantage of ESPNodes is the simplicity, freedom and flexibility it pro
 ESPNodes currently has the following features:
 
 ## Node
+* Update your ESP over the air, directly from the Arduino IDE!
 * Read analog inputs
 * Read and write digital pins
 * Control relays
 * Control servo motor
 * Read load cells using HX711-compatible chips
+
 
 ## Frontend
 * Easy to add nodes
@@ -43,7 +45,6 @@ The following features have been scheduled in upcoming releases:
 
 ## Frontend
 * Handle push messages from nodes
-* Timer-based control of node sensors
 
 
 # How to use
@@ -57,5 +58,6 @@ The following features have been scheduled in upcoming releases:
 * Adjust the Arduino sketch to your needs. Make sure the JSON object sent and received are complete (i.e. contain all sensor data you want to transmit). Make sure that any math is handled on the node, since the PHP frontend does currently not support math operations.
 * Compile and upload the sketch to your ESP8266 (or similar) board. The author uses the LOLIN D1 mini board, for example.
 Note: make sure you have configured the board correctly in the board manager of the Arduino IDE, and that you have installed all library dependencies. An up-to-date list of dependencies is included in the source code.
-* Upload the PHP frontend code to your server public_html directory. Adjust config\config.php to your needs, make sure to set the correct JSON data for every node and its sensors. You can use 'r' for read-only sensor data, 'w' for writeable data, and 'c' for configuration data (typically stored in the node EEPROM).
+* Upload the PHP frontend code to your server public_html directory
+* Read the frontent README for the installation and configuration instructions.
 * Done! You should be able to read the ESP node from the PHP frontend page.
