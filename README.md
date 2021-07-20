@@ -15,12 +15,12 @@ ESPNodes currently has the following features:
 * Control relays
 * Control servo motor
 * Read load cells using HX711-compatible chips
-
+* Storage in flash for configuration/calibration data (configurable via the frontend)
 
 ## Frontend
 * Easy to add nodes
 * Automatic parsing of node data
-* Configurable frienly name for every sensor
+* Configurable friendly name for every sensor
 * Node sensors definaeable as read-only (r), read-write (w), and config (c)
 * Logging with advanced plotting using Plotly
 * Timers with advanced timing possibilities (e.g. sunset, sunrise, and complex date strings)
