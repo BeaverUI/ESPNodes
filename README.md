@@ -7,7 +7,10 @@ The main advantage of ESPNodes is the simplicity, freedom and flexibility it pro
 
 
 # Screenshots
-![Frontend sensors page](/Screenshots/Frontend_example_1.png)
+![Frontend sensors page](/Screenshots/sensors.png)
+![Frontend actuators page](/Screenshots/actuators.png)
+![Frontend logs page](/Screenshots/logs.png)
+![Frontend timers page](/Screenshots/timers.png)
 
 
 # Features
@@ -25,6 +28,8 @@ ESPNodes currently has the following features:
 * Automatic parsing of node data
 * Configurable frienly name for every sensor
 * Node sensors definaeable as read-only (r), read-write (w), and config (c)
+* Logging with advanced plotting using Plotly
+* Timers with advanced timing possibilities (e.g. sunset, sunrise, and complex date strings)
 * Responsive design that is both mobile and computer friendly, using Bootswatch template (http://www.bootswatch.com)
 
 
