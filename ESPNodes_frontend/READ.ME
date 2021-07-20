@@ -1,0 +1,45 @@
+ESPNodes by Bas Vermulst, https://github.com/BeaverUI
+
+
+======== CHANGELOG ========
+
+Version 0.2
+- added new feature: timers
+- updated theme and improved layout
+- updated logging features
+
+Version 0.1
+- initial release
+
+
+
+Open issues:
+- implement directory and file cleanup for timers and logs
+- implement security
+- implement event-based push messages
+
+
+======== INSTALLATION ========
+Installation steps for the server-side code:
+1. Make sure you have a webserver (e.g. Apache) with PHP running.
+
+2. Copy all files for the server-side to a subdirectory of your www-root (e.g. /var/www/html/espnodes)
+
+3. Configure your nodes and enable logging for the desired sensors in config/nodes.php (nodes should be running the ESPNodes Arduino framework)
+
+4. Configure logging displays in config/logs.php
+
+5. Configure the timers, especially your location latitude and longitude in config/timers.php to ensure sunrise and sunset based timing work properly.
+
+6. Set the logs and timers directories readable and writeable by both the webserver and the espnodes daemon, e.g. by executing
+chmod -R 777 logs/
+and
+chmod -R 777 timers/
+
+7. Install the ESPNodes daemon from the bin/ directory:
+- Adjust the bin/espnodes_daemon.service file such that ExecStart refers to the absolute path of the daemon.php script, e.g.:
+ExecStart=/usr/bin/php /var/www/html/espnodes/bin/daemon.php
+- Copy the adjusted file from bin/espnodes_daemon.service to /etc/systemd/system/espnodes_daemon.service
+- Run "sudo systemctl enable espnodes_daemon" to enable the service at boot
+- Run "sudo systemctl start espnodes_daemon" to start it (after enabling)
+- Run "sudo systemctl status espnodes_daemon" to check its status. All timer-related messages will be shown here as well.

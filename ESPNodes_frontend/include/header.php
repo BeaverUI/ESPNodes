@@ -3,23 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <title><?php echo $PAGE_TITLE; ?></title>
+	
+	<!-- Include stylesheets -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.0.2/dist/morph/bootstrap.min.css" crossorigin="anonymous">
+	<link rel="stylesheet" href="css/custom-1.5.css" media="screen">
 
-	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-	<script
-			  src="https://code.jquery.com/jquery-3.4.1.min.js"
-			  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
-			  crossorigin="anonymous"></script>
+	<!-- Include JavaScript bundle -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
 
-	<!-- Include plugins -->
-	<script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js" type="text/javascript"></script>
-
-	<!-- Include stylesheet -->
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.4.1/sandstone/bootstrap.css" media="screen">
+	<!-- jQuery -->
+	<script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 	
 	<!-- Required meta tags -->
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
- 
+    <meta name="viewport" content="width=device-width, initial-scale=0.75">
+
 </head>
 
 <body>

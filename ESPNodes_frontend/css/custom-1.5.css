@@ -1,0 +1,17 @@
+body {
+	min-width: 520px !important;
+}
+
+.container-maxwidth{
+	max-width: 900px;
+}
+
+
+table {
+	width: 100% !important;
+}
+
+table th, table td {
+	word-wrap: break-word !important;
+	padding: 0.3rem !important;
+}

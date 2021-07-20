@@ -1,0 +1,9 @@
+[Unit]
+Description=ESPNodes logging and timer daemon
+
+[Service]
+ExecStart=/usr/bin/php /var/www/html/espnodes/bin/daemon.php
+
+[Install]
+WantedBy=multi-user.target
+
