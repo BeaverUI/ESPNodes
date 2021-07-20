@@ -5,14 +5,6 @@ ESPNodes is a framework, hence relies on basic PHP and Arduino (C/C++) programmi
 
 The main advantage of ESPNodes is the simplicity, freedom and flexibility it provides. The integration of node and frontend allows quick and easy setup without hassle. It allows you to monitor and control things directly from any browser, such as switch your lights, open and close doors, measure temperature, weigh your chickens, just to name a few examples.
 
-
-# Screenshots
-![Frontend sensors page](/Screenshots/sensors.png)
-![Frontend actuators page](/Screenshots/actuators.png)
-![Frontend logs page](/Screenshots/logs.png)
-![Frontend timers page](/Screenshots/timers.png)
-
-
 # Features
 ESPNodes currently has the following features:
 
@@ -33,6 +25,13 @@ ESPNodes currently has the following features:
 * Logging with advanced plotting using Plotly
 * Timers with advanced timing possibilities (e.g. sunset, sunrise, and complex date strings)
 * Responsive design that is both mobile and computer friendly, using Bootswatch template (http://www.bootswatch.com)
+
+
+# Screenshots of frontend
+![Frontend sensors page](/Screenshots/sensors.png)
+![Frontend actuators page](/Screenshots/actuators.png)
+![Frontend logs page](/Screenshots/logs.png)
+![Frontend timers page](/Screenshots/timers.png)
 
 
 # Planned features
