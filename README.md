@@ -28,11 +28,10 @@ ESPNodes currently has the following features:
 
 
 # Screenshots of frontend
+<img src="Screenshots/sensors.png" align="left" width="500px">
 <img src="Screenshots/actuators.png" align="left" width="500px">
-![Frontend sensors page](/Screenshots/sensors.png)
-![Frontend actuators page](/Screenshots/actuators.png)
-![Frontend logs page](/Screenshots/logs.png)
-![Frontend timers page](/Screenshots/timers.png)
+<img src="Screenshots/logs.png" align="left" width="500px">
+<img src="Screenshots/timers.png" align="left" width="500px">
 
 
 # Planned features
